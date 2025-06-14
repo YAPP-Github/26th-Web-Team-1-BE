@@ -38,3 +38,8 @@ out/
 
 ### Rest Docs Documentation ###
 /src/main/resources/static/docs/openapi3.yaml
+
+### terraform ###
+.terraform/
+*.tfstate
+*.tfstate.*

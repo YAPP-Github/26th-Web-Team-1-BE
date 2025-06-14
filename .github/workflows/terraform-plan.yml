@@ -1,0 +1,327 @@
+name: Terraform Plan on PR
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  plan-common:
+    name: "Terraform Plan (common)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.5
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform/common
+
+      - name: Terraform Plan and Capture Output
+        id: plan
+        working-directory: ./terraform/common
+        run: |
+          #!/bin/bash
+          set +e
+          
+          terraform plan -no-color -detailed-exitcode > plan_full.txt 2>&1
+          TERRAFORM_EXIT_CODE=$?
+          
+          cat plan_full.txt
+          
+          resource_summary=$(grep -E '^(# |  [~+\-])' plan_full.txt | head -n 50 || echo "No resource changes")
+          plan_summary=$(grep -E '^Plan:' plan_full.txt || echo "No plan summary")
+          
+          {
+            echo "summary_output<<EOF"
+            echo "$resource_summary"
+            echo "$plan_summary"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          
+          case $TERRAFORM_EXIT_CODE in
+            0)
+              echo "✅ Terraform plan completed with no changes."
+              echo "plan_status=success" >> $GITHUB_OUTPUT
+              ;;
+            2)
+              echo "✅ Terraform plan completed with changes."
+              echo "plan_status=changes" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "❌ Terraform plan failed with errors."
+              echo "plan_status=error" >> $GITHUB_OUTPUT
+              ;;
+          esac
+          
+          exit 0
+
+      - name: Upload full plan as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-common
+          path: ./terraform/common/plan_full.txt
+
+    outputs:
+      summary_output: ${{ steps.plan.outputs.summary_output }}
+      plan_status: ${{ steps.plan.outputs.plan_status }}
+
+  plan-dev:
+    name: "Terraform Plan (dev)"
+    if: github.base_ref == 'develop' || github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.5
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform/dev
+
+      - name: Terraform Plan and Capture Output
+        id: plan
+        working-directory: ./terraform/dev
+        run: |
+          #!/bin/bash
+          set +e
+          
+          terraform plan -no-color -detailed-exitcode > plan_full.txt 2>&1
+          TERRAFORM_EXIT_CODE=$?
+          
+          cat plan_full.txt
+          
+          resource_summary=$(grep -E '^(# |  [~+\-])' plan_full.txt | head -n 50 || echo "No resource changes")
+          plan_summary=$(grep -E '^Plan:' plan_full.txt || echo "No plan summary")
+          
+          {
+            echo "summary_output<<EOF"
+            echo "$resource_summary"
+            echo "$plan_summary"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          
+          case $TERRAFORM_EXIT_CODE in
+            0)
+              echo "✅ Terraform plan completed with no changes."
+              echo "plan_status=success" >> $GITHUB_OUTPUT
+              ;;
+            2)
+              echo "✅ Terraform plan completed with changes."
+              echo "plan_status=changes" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "❌ Terraform plan failed with errors."
+              echo "plan_status=error" >> $GITHUB_OUTPUT
+              ;;
+          esac
+          
+          exit 0
+
+      - name: Upload full plan as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-dev
+          path: ./terraform/dev/plan_full.txt
+
+    outputs:
+      summary_output: ${{ steps.plan.outputs.summary_output }}
+      plan_status: ${{ steps.plan.outputs.plan_status }}
+
+  plan-prod:
+    name: "Terraform Plan (prod)"
+    if: github.base_ref == 'main' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.5
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform/prod
+
+      - name: Terraform Plan and Capture Output
+        id: plan
+        working-directory: ./terraform/prod
+        run: |
+          #!/bin/bash
+          set +e
+          
+          terraform plan -no-color -detailed-exitcode > plan_full.txt 2>&1
+          TERRAFORM_EXIT_CODE=$?
+          
+          cat plan_full.txt
+          
+          resource_summary=$(grep -E '^(# |  [~+\-])' plan_full.txt | head -n 50 || echo "No resource changes")
+          plan_summary=$(grep -E '^Plan:' plan_full.txt || echo "No plan summary")
+          
+          {
+            echo "summary_output<<EOF"
+            echo "$resource_summary"
+            echo "$plan_summary"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          
+          case $TERRAFORM_EXIT_CODE in
+            0)
+              echo "✅ Terraform plan completed with no changes."
+              echo "plan_status=success" >> $GITHUB_OUTPUT
+              ;;
+            2)
+              echo "✅ Terraform plan completed with changes."
+              echo "plan_status=changes" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "❌ Terraform plan failed with errors."
+              echo "plan_status=error" >> $GITHUB_OUTPUT
+              ;;
+          esac
+          
+          exit 0
+
+      - name: Upload full plan as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-prod
+          path: ./terraform/prod/plan_full.txt
+
+    outputs:
+      summary_output: ${{ steps.plan.outputs.summary_output }}
+      plan_status: ${{ steps.plan.outputs.plan_status }}
+
+  comment-summary:
+    name: "Comment PR with Plan Summary"
+    runs-on: ubuntu-latest
+    needs: [ plan-common, plan-dev, plan-prod ]
+    if: always()
+    steps:
+      - name: Generate Comment Body
+        id: comment
+        run: |
+          cat > comment.md << 'EOF'
+          ## 📄 Terraform Plan Summary
+
+          ### 🛡️ Common Infrastructure
+          ```
+          EOF
+          echo "${{ needs.plan-common.outputs.summary_output || 'No output available' }}" >> comment.md
+          cat >> comment.md << 'EOF'
+          ```
+          EOF
+
+          if [ "${{ needs.plan-common.outputs.plan_status }}" = "error" ]; then
+            echo "**Status:** ❌ Failed" >> comment.md
+          elif [ "${{ needs.plan-common.outputs.plan_status }}" = "changes" ]; then
+            echo "**Status:** 🔄 Changes Detected" >> comment.md
+          else
+            echo "**Status:** ✅ No Changes" >> comment.md
+          fi
+
+          if [ "${{ needs.plan-dev.result }}" != "skipped" ]; then
+            cat >> comment.md << 'EOF'
+
+          ---
+          ### 🛠️ Development Environment
+          ```
+          EOF
+            echo "${{ needs.plan-dev.outputs.summary_output || 'No output available' }}" >> comment.md
+            cat >> comment.md << 'EOF'
+          ```
+          EOF
+
+            if [ "${{ needs.plan-dev.outputs.plan_status }}" = "error" ]; then
+              echo "**Status:** ❌ Failed" >> comment.md
+            elif [ "${{ needs.plan-dev.outputs.plan_status }}" = "changes" ]; then
+              echo "**Status:** 🔄 Changes Detected" >> comment.md
+            else
+              echo "**Status:** ✅ No Changes" >> comment.md
+            fi
+          fi
+
+          if [ "${{ needs.plan-prod.result }}" != "skipped" ]; then
+            cat >> comment.md << 'EOF'
+
+          ---
+          ### 🚀 Production Environment
+          ```
+          EOF
+            echo "${{ needs.plan-prod.outputs.summary_output || 'No output available' }}" >> comment.md
+            cat >> comment.md << 'EOF'
+          ```
+          EOF
+
+            if [ "${{ needs.plan-prod.outputs.plan_status }}" = "error" ]; then
+              echo "**Status:** ❌ Failed" >> comment.md
+            elif [ "${{ needs.plan-prod.outputs.plan_status }}" = "changes" ]; then
+              echo "**Status:** 🔄 Changes Detected" >> comment.md
+            else
+              echo "**Status:** ✅ No Changes" >> comment.md
+            fi
+          fi
+
+          cat >> comment.md << 'EOF'
+
+          ---
+          📋 **Full Results:** [View in Actions](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          EOF
+
+          {
+            echo "body<<EOF"
+            cat comment.md
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Comment PR with Plan Summary
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: ${{ steps.comment.outputs.body }}
+
+      - name: Fail job if any plan failed
+        if: |
+          needs.plan-common.outputs.plan_status == 'error' ||
+          (needs.plan-dev.result != 'skipped' && needs.plan-dev.outputs.plan_status == 'error') ||
+          (needs.plan-prod.result != 'skipped' && needs.plan-prod.outputs.plan_status == 'error')
+        run: exit 1
