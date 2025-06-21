@@ -1,0 +1,31 @@
+name: "Hotfix Template"
+description: 핫픽스 이슈 템플릿
+labels: [ hotfix ]
+title: '[Hotfix] '
+body:
+  - type: input
+    id: parentKey
+    attributes:
+      label: '🏷️ 상위 작업 (Ticket Number)'
+      description: '상위 작업의 Ticket Number를 기입해주세요'
+      placeholder: 'PRODUCT-000'
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: '🚀 구현 내용'
+      description: '이슈에 대해서 자세히 설명해주세요'
+      value: |
+        -
+    validations:
+      required: true
+
+  - type: input
+    id: dueDate
+    attributes:
+      label: '📅 마감일'
+      description: '마감일을 입력해주세요 (YY.MM.DD)'
+    validations:
+      required: false

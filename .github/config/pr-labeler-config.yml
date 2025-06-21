@@ -1,5 +1,8 @@
 fix:
-  - head-branch: ['^fix/', '^bugfix/', '^hotfix/']
+  - head-branch: ['^fix/', '^bugfix/']
+
+hotfix:
+  - head-branch: ['^hotfix/']
 
 feat:
   - head-branch: ['^feat/', '^feature/']
