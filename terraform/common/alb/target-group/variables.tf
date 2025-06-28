@@ -1,8 +1,8 @@
 variable "target_groups" {
   type = map(object({
-    port        = number
-    protocol    = string
-    target_type = string
+    port                 = number
+    protocol             = string
+    target_type          = string
     deregistration_delay = number
     health_check = object({
       path                = string
@@ -17,5 +17,5 @@ variable "target_groups" {
 
 
 variable "vpc_id" {
-  type        = string
+  type = string
 }

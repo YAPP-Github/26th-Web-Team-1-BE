@@ -18,8 +18,7 @@ module "service" {
 }
 
 module "task" {
-  source                    = "./task"
-  container_definitions_map = local.container_definitions_map
-  ecs_task_definitions      = var.ecs_task_definitions
-  tags                      = var.tags
+  source               = "./task"
+  ecs_task_definitions = var.ecs_task_definitions
+  tags                 = var.tags
 }

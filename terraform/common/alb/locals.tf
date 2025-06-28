@@ -1,5 +1,5 @@
 locals {
-  alb_name            = "timeeat-alb"
+  alb_name            = "eatda-alb"
   deletion_protection = false
   loadbalancer_type   = "application"
   internal            = false
@@ -74,13 +74,13 @@ locals {
   listener_rules = {
     "prod-path-rule" = {
       priority         = 1
-      host_header      = "api.time-eat.com"
+      host_header      = "api.eatda.net"
       action_type      = "forward"
       target_group_arn = module.target_groups.target_group_arns["api-prod"]
     }
     "dev-path-rule" = {
       priority         = 2
-      host_header      = "dev.time-eat.com"
+      host_header      = "api-dev.eatda.net"
       action_type      = "forward"
       target_group_arn = module.target_groups.target_group_arns["api-dev"]
     }

@@ -1,26 +1,52 @@
 variable "ecs_task_definitions" {
-  description = "Resolved task definition map (with image, roles, etc)"
+  description = "A strictly-typed, unified map for all task definition properties."
+
   type = map(object({
     cpu                = number
     memory             = number
     network_mode       = string
-    container_image    = string
     task_role_arn      = string
     execution_role_arn = string
     requires_compatibilities = list(string)
-    container_port = list(number)
-    host_port = list(number)
     volumes = optional(list(object({
       name      = string
       host_path = string
     })), [])
-    environment = optional(map(string), {})
-  }))
-}
 
-variable "container_definitions_map" {
-  description = "Map of ECS service names to their container definitions"
-  type = map(any)
+    container_definitions = list(object({
+      name        = string
+      image       = string
+      cpu         = number
+      memory      = number
+      essential   = bool
+      stopTimeout = number
+
+      command = optional(list(string))
+
+      portMappings = list(object({
+        name          = string
+        containerPort = number
+        hostPort      = number
+        protocol      = string
+      }))
+
+      environment = optional(list(object({
+        name  = string
+        value = string
+      })), [])
+
+      secrets = optional(list(object({
+        name      = string
+        valueFrom = string
+      })), [])
+
+      mountPoints = optional(list(object({
+        sourceVolume  = string
+        containerPath = string
+        readOnly      = bool
+      })), [])
+    }))
+  }))
 }
 
 variable "tags" {

@@ -22,12 +22,12 @@ ecs_task_definitions_base = {
     network_mode = "bridge"
     container_port = [8080]
     host_port = [0]
-    log_group    = "/ecs/time-eat-api"
+    log_group    = "/ecs/eatda-api"
     environment = {}
     volumes = [
       {
         name      = "prod-api-volume"
-        host_path = "/home/ec2-user/time-eat/prod/"
+        host_path = "/home/ec2-user/eatda/prod/"
       }
     ]
   }

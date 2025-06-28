@@ -1,10 +1,10 @@
 data "aws_ssm_parameter" "rds_user_name" {
-  name            = "/prod/mysql-name"
+  name            = "/prod/MYSQL_USER_NAME"
   with_decryption = true
 }
 
 data "aws_ssm_parameter" "rds_password" {
-  name            = "/prod/mysql-pw"
+  name            = "/prod/MYSQL_PASSWORD"
   with_decryption = true
 }
 
@@ -20,7 +20,7 @@ module "ec2" {
 module "ecs" {
   source                = "./ecs"
   alb_target_group_arns = local.alb_target_group_arns
-  ecr_repo_urls        = local.ecr_repo_urls
+  ecr_repo_urls         = local.ecr_repo_urls
   ecs_services          = var.ecs_services
   ecs_task_definitions  = local.ecs_task_definitions
   environment           = local.environment

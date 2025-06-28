@@ -9,7 +9,7 @@ resource "aws_instance" "dev" {
   user_data_replace_on_change = true
 
   metadata_options {
-    http_tokens = "required"
+    http_tokens   = "required"
     http_endpoint = "enabled"
   }
 

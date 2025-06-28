@@ -9,7 +9,7 @@ resource "aws_ecs_task_definition" "dev" {
   execution_role_arn       = each.value.execution_role_arn
   requires_compatibilities = each.value.requires_compatibilities
 
-  container_definitions = jsonencode(var.container_definitions_map[each.key])
+  container_definitions = jsonencode(each.value.container_definitions)
 
   dynamic "volume" {
     for_each = each.value.volumes

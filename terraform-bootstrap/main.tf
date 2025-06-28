@@ -12,14 +12,14 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "bootstrap" {
-  bucket        = "timeeat-tf-state"
+  bucket        = "eatda-tf-state"
   force_destroy = false
 
   tags = {
-    Name        = "timeeat-tf-state"
+    Name        = "eatda-tf-state"
     Environment = "state"
     Owner       = "baegam"
-    Project     = "time-eat"
+    Project     = "eatda"
     Service     = "infrastructure"
   }
 }
@@ -50,7 +50,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "bucket_lifecycle" {
 }
 
 resource "aws_dynamodb_table" "lock" {
-  name         = "timeeat-tf-lock"
+  name         = "eatda-tf-lock"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 
@@ -60,10 +60,10 @@ resource "aws_dynamodb_table" "lock" {
   }
 
   tags = {
-    Name        = "timeeat-tf-lock"
+    Name        = "eatda-tf-lock"
     Environment = "state"
     Owner       = "baegam"
-    Project     = "time-eat"
+    Project     = "eatda"
     Service     = "infrastructure"
   }
 }

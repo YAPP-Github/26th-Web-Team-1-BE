@@ -1,6 +1,9 @@
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
 locals {
   group_name   = "power"
-  project_name = "time-eat"
+  project_name = "eatda"
 
   policy_arns = [
     "arn:aws:iam::aws:policy/AdministratorAccess",
@@ -53,6 +56,27 @@ locals {
         "arn:aws:iam::aws:policy/AmazonS3FullAccess",
         "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
       ]
+      custom_inline_policies = {
+        ssm_kms_access = {
+          name        = "ssm-kms-access-for-${local.project_name}-app"
+          description = "Allows reading from Parameter Store and decrypting with KMS"
+          policy_document = {
+            Version = "2012-10-17",
+            Statement = [
+              {
+                Effect   = "Allow",
+                Action = ["ssm:GetParametersByPath", "ssm:GetParameter"],
+                Resource = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/dev/*"
+              },
+              {
+                Effect   = "Allow",
+                Action   = "kms:Decrypt",
+                Resource = "arn:aws:kms:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:key/${"alias/aws/ssm"}"
+              }
+            ]
+          }
+        }
+      }
       tags = {
         Purpose = "ECS Application Task Role"
       }
@@ -61,7 +85,7 @@ locals {
 }
 
 locals {
-  domain_name       = "time-eat.com"
+  domain_name       = "eatda.net"
   validation_method = "DNS"
   record_type       = "A"
   alb_alias = {
@@ -70,36 +94,36 @@ locals {
   }
 
   subdomains = {
-    api = local.alb_alias
-    dev = local.alb_alias
+    api     = local.alb_alias
+    api-dev = local.alb_alias
   }
 }
 
 locals {
   security_groups = {
     alb = {
-      name        = "timeeat-alb-sg"
+      name        = "eatda-alb-sg"
       description = "ALB SG"
       tags = {
-        Name        = "timeeat-alb-sg"
+        Name        = "eatda-alb-sg"
         Environment = "common"
         Service     = "alb"
       }
     }
     ec2 = {
-      name        = "timeeat-ec2-sg"
+      name        = "eatda-ec2-sg"
       description = "EC2 SG"
       tags = {
-        Name        = "timeeat-ec2-sg"
+        Name        = "eatda-ec2-sg"
         Environment = "common"
         Service     = "ec2"
       }
     }
     rds = {
-      name        = "timeeat-rds-sg"
+      name        = "eatda-rds-sg"
       description = "RDS SG"
       tags = {
-        Name        = "timeeat-rds-sg"
+        Name        = "eatda-rds-sg"
         Environment = "common"
         Service     = "rds"
       }
@@ -177,6 +201,14 @@ locals {
       protocol                  = "tcp"
       description               = "Dynamic ports from ALB"
     }
+    ec2_from_self_mysql = {
+      source_security_group_key = "ec2"
+      target_security_group_key = "ec2"
+      from_port                 = 3306
+      to_port                   = 3306
+      protocol                  = "tcp"
+      description               = "MySQL access within same SG (self-access)"
+    }
     rds_from_ec2 = {
       source_security_group_key = "ec2"
       target_security_group_key = "rds"
@@ -187,7 +219,3 @@ locals {
     }
   }
 }
-
-
-
-

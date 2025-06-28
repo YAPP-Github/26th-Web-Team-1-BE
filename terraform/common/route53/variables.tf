@@ -1,5 +1,5 @@
 variable "domain_name" {
-  description = "time-eat.com"
+  description = "eatda.net"
   type        = string
 }
 

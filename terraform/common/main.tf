@@ -17,6 +17,7 @@ module "iam_role" {
   name                 = each.key
   assume_role_services = each.value.assume_role_services
   policy_arns          = each.value.policy_arns
+  custom_inline_policies = try(each.value.custom_inline_policies, {})
 }
 
 module "security_group" {

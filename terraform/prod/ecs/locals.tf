@@ -56,8 +56,8 @@ locals {
 
   resolved_ecs_services = {
     for name, def in var.ecs_services : name => {
-      name          = name
-      iam_role_arn  = var.ecs_task_definitions[name].task_role_arn
+      name         = name
+      iam_role_arn = var.ecs_task_definitions[name].task_role_arn
       load_balancer = try(def.load_balancer, null)
     }
   }
@@ -71,6 +71,13 @@ locals {
         memory    = def.memory
         essential = true
         stopTimeout = lookup(def, "stop_timeout", var.default_stop_timeout)
+
+        command = svc == "api-prod" ? [
+          "java",
+          "-Dspring.profiles.active=prod",
+          "-jar",
+          "/api.jar"
+        ] : null
 
         portMappings = [
           for idx, port in def.container_port : {

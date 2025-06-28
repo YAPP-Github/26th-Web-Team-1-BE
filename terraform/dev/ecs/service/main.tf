@@ -25,6 +25,10 @@ resource "aws_ecs_service" "dev" {
     rollback = true
   }
 
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
+
   tags = merge(var.tags, {
     Service = each.key
   })

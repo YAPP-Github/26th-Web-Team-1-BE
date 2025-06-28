@@ -2,7 +2,7 @@ package timeeat.document;
 
 public enum Tag {
 
-    MEMBER_API("Member API"), // Example (추후 삭제)
+    MEMBER_API("Member API"),
     ;
 
     private final String displayName;

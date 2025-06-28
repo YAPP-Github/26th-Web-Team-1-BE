@@ -13,3 +13,13 @@ output "ecs_api_service_name" {
 output "ecs_api_container_name" {
   value = module.ecs.container_names["api-prod"]
 }
+
+output "rds_endpoint" {
+  description = "RDS endpoint address"
+  value       = module.rds.endpoint
+}
+
+output "rds_arn" {
+  description = "RDS instance ARN"
+  value       = module.rds.arn
+}

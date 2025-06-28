@@ -1,7 +1,7 @@
 data "terraform_remote_state" "bootstrap" {
   backend = "s3"
   config = {
-    bucket = "timeeat-tf-state"
+    bucket = "eatda-tf-state"
     key    = "bootstrap/terraform.tfstate"
     region = "ap-northeast-2"
   }
@@ -10,7 +10,7 @@ data "terraform_remote_state" "bootstrap" {
 data "terraform_remote_state" "common" {
   backend = "s3"
   config = {
-    bucket = "timeeat-tf-state"
+    bucket = "eatda-tf-state"
     key    = "common/terraform.tfstate"
     region = "ap-northeast-2"
   }
@@ -18,10 +18,10 @@ data "terraform_remote_state" "common" {
 
 
 locals {
-  project_name = "time-eat"
+  project_name = "eatda"
   region       = "ap-northeast-2"
   environment  = "prod"
-  name_prefix  = "time-eat"
+  name_prefix  = "eatda"
 
   ec2_sg_id                 = data.terraform_remote_state.common.outputs.security_group_ids["ec2"]
   instance_definitions      = data.terraform_remote_state.common.outputs.instance_profile_name["ec2-to-ecs"]
@@ -47,7 +47,7 @@ locals {
     instance_type        = "t3.micro"
     role                 = "prod"
     iam_instance_profile = "ec2-to-ecs"
-    key_name             = "time-eat-ec2-prod-key"
+    key_name             = "eatda-ec2-prod-key"
     user_data            = <<-EOF
 #!/bin/bash
 echo ECS_CLUSTER=prod-cluster >> /etc/ecs/ecs.config

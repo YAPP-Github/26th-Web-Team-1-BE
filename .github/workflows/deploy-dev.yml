@@ -95,6 +95,7 @@ jobs:
           echo "ECS_CLUSTER=$(echo "$TF_OUTPUTS" | jq -r '.ecs_cluster_name.value')" >> $GITHUB_ENV
           echo "ECS_SERVICE=$(echo "$TF_OUTPUTS" | jq -r '.ecs_api_service_name.value')" >> $GITHUB_ENV
           echo "CONTAINER_NAME=$(echo "$TF_OUTPUTS" | jq -r '.ecs_api_container_name.value')" >> $GITHUB_ENV
+          echo "PRIVATE_IP=$(echo "$TF_OUTPUTS" | jq -r '.ec2_private_ip.value')" >> $GITHUB_ENV
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -103,13 +104,29 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Update MYSQL_URL in Parameter Store
+        run: |
+          MYSQL_URL="jdbc:mysql://${PRIVATE_IP}:3306/eatda?useUnicode=true&characterEncoding=UTF-8"
+
+          aws ssm put-parameter \
+            --name "/dev/MYSQL_URL" \
+            --type "SecureString" \
+            --value "$MYSQL_URL" \
+            --overwrite
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
       - name: Install Semantic Release dependencies
-        run: npm install semantic-release @semantic-release/commit-analyzer @semantic-release/release-notes-generator conventional-changelog-conventionalcommits
+        run: |
+          npm install \
+            semantic-release \
+            @semantic-release/commit-analyzer \
+            @semantic-release/release-notes-generator \
+            @semantic-release/github \
+            conventional-changelog-conventionalcommits
 
       - name: Semantic Release
         id: get_version
@@ -138,7 +155,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           chmod +x gradlew
-          ./gradlew clean build
+          ./gradlew clean build -Dspring.profiles.active=dev
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -169,7 +186,7 @@ jobs:
           image: ${{ env.image }}
 
       - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}

@@ -26,3 +26,9 @@ variable "ecs_task_definitions_base" {
     }))
   }))
 }
+
+variable "volume_mount_paths" {
+  description = "A map of volume names to their mount paths inside the container."
+  type = map(string)
+  default = {}
+}

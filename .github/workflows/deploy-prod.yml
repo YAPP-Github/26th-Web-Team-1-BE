@@ -96,20 +96,30 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Parse Terraform Outputs and Set Environment Variables
-        run: |
-          TF_OUTPUTS='${{ needs.terraform-apply-prod.outputs.tf_outputs_json }}'
-          echo "ECR_REPOSITORY=$(echo "$TF_OUTPUTS" | jq -r '.ecr_repository_name.value')" >> $GITHUB_ENV
-          echo "ECS_CLUSTER=$(echo "$TF_OUTPUTS" | jq -r '.ecs_cluster_name.value')" >> $GITHUB_ENV
-          echo "ECS_SERVICE=$(echo "$TF_OUTPUTS" | jq -r '.ecs_api_service_name.value')" >> $GITHUB_ENV
-          echo "CONTAINER_NAME=$(echo "$TF_OUTPUTS" | jq -r '.ecs_api_container_name.value')" >> $GITHUB_ENV
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Parse Terraform Outputs
+        id: parse-tf
+        run: |
+          TF_OUTPUTS='${{ needs.terraform-apply-prod.outputs.tf_outputs_json }}'
+          echo "ECR_REPOSITORY=$(echo "$TF_OUTPUTS" | jq -r '.ecr_repository_name.value')" >> $GITHUB_ENV
+          echo "ECS_CLUSTER=$(echo "$TF_OUTPUTS" | jq -r '.ecs_cluster_name.value')" >> $GITHUB_ENV
+          echo "ECS_SERVICE=$(echo "$TF_OUTPUTS" | jq -r '.ecs_api_service_name.value')" >> $GITHUB_ENV
+          echo "CONTAINER_NAME=$(echo "$TF_OUTPUTS" | jq -r '.ecs_api_container_name.value')" >> $GITHUB_ENV
+          echo "RDS_ENDPOINT=$(echo "$TF_OUTPUTS" | jq -r '.rds_endpoint.value')" >> $GITHUB_ENV
+
+      - name: Update DB URL in Parameter Store
+        run: |
+          aws ssm put-parameter \
+            --name "/prod/mysql-url" \
+            --value "jdbc:mysql://${{ env.RDS_ENDPOINT }}:3306/eatda?useUnicode=true&characterEncoding=UTF-8" \
+            --type SecureString \
+            --overwrite
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -157,7 +167,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           chmod +x gradlew
-          ./gradlew clean build
+          ./gradlew clean build -Dspring.profiles.active=prod
 
       - name: Login to Amazon ECR
         id: login-ecr
