@@ -1,6 +1,14 @@
 package timeeat.domain.member;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,9 +42,10 @@ public class Member {
     @Column(name = "opt_in_marketing")
     private Boolean optInMarketing;
 
-    public Member(String socialId) {
+    public Member(String socialId, String nickname) {
         validateSocialId(socialId);
         this.socialId = socialId;
+        this.nickname = nickname;
     }
 
     public Member(
@@ -46,8 +55,14 @@ public class Member {
             String interestArea,
             Boolean optInMarketing
     ) {
-        this(socialId);
+        this(socialId, nickname);
         validateOptInMarketing(optInMarketing);
+        this.mobilePhoneNumber = new MobilePhoneNumber(mobilePhoneNumber);
+        this.interestArea = InterestArea.from(interestArea);
+        this.optInMarketing = optInMarketing;
+    }
+
+    public Member(String nickname, String mobilePhoneNumber, String interestArea, boolean optInMarketing) {
         this.nickname = nickname;
         this.mobilePhoneNumber = new MobilePhoneNumber(mobilePhoneNumber);
         this.interestArea = InterestArea.from(interestArea);
@@ -66,8 +81,29 @@ public class Member {
         }
     }
 
+    public void update(Member member) {
+        this.nickname = member.nickname;
+        this.mobilePhoneNumber = member.mobilePhoneNumber;
+        this.interestArea = member.interestArea;
+        this.optInMarketing = member.optInMarketing;
+    }
+
     public boolean isOptInMarketing() {
         return Boolean.TRUE.equals(optInMarketing);
+    }
+
+    public String getPhoneNumber() {
+        if (mobilePhoneNumber == null) {
+            return null;
+        }
+        return mobilePhoneNumber.getValue();
+    }
+
+    public String getInterestAreaName() {
+        if (interestArea == null) {
+            return null;
+        }
+        return interestArea.getAreaName();
     }
 }
 

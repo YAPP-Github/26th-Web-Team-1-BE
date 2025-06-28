@@ -1,13 +1,14 @@
 package timeeat.controller.auth;
 
 import java.net.URI;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import lombok.RequiredArgsConstructor;
+import timeeat.controller.member.MemberResponse;
 import timeeat.controller.web.jwt.JwtManager;
 import timeeat.service.auth.AuthService;
 
@@ -29,15 +30,14 @@ public class AuthController {
     }
 
     @PostMapping("/api/auth/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody MemberLoginRequest request) {
-        authService.login(request);
-
-        TokenResponse response = new TokenResponse(
-                jwtManager.issueAccessToken(1L),
-                jwtManager.issueRefreshToken(1L));
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+        MemberResponse member = authService.login(request);
+        TokenResponse token = new TokenResponse(
+                jwtManager.issueAccessToken(member.id()),
+                jwtManager.issueRefreshToken(member.id()));
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(response);
+                .body(new LoginResponse(token, member));
     }
 
     @PostMapping("/api/auth/reissue")

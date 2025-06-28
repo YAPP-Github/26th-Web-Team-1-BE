@@ -1,17 +1,17 @@
 package timeeat.controller.web.auth;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import lombok.AllArgsConstructor;
 import timeeat.controller.web.jwt.JwtManager;
 import timeeat.exception.BusinessErrorCode;
 import timeeat.exception.BusinessException;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthMemberArgumentResolver implements HandlerMethodArgumentResolver {
 
     private final JwtManager jwtManager;

@@ -18,7 +18,7 @@ public class MobilePhoneNumber {
 
     private static final Pattern PHONE_NUMBER_PATTERN = Pattern.compile("^\\d{11}$");
 
-    @Column(name = "phone_number", nullable = false)
+    @Column(name = "phone_number")
     private String value;
 
     public MobilePhoneNumber(String value) {
