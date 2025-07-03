@@ -69,7 +69,7 @@ class MemberControllerTest extends BaseControllerTest {
 
         @Test
         void 회원_정보를_수정할_수_있다() {
-            MemberUpdateRequest request = new MemberUpdateRequest("update-nickname", "01012345678", "성북구", true);
+            MemberUpdateRequest request = new MemberUpdateRequest("update-nickname", "01012345678", true);
 
             MemberResponse response = given()
                     .contentType(ContentType.JSON)
@@ -84,7 +84,6 @@ class MemberControllerTest extends BaseControllerTest {
                     () -> assertThat(response.isSignUp()).isFalse(),
                     () -> assertThat(response.nickname()).isEqualTo("update-nickname"),
                     () -> assertThat(response.phoneNumber()).isEqualTo("01012345678"),
-                    () -> assertThat(response.interestArea()).isEqualTo("성북구"),
                     () -> assertThat(response.optInMarketing()).isTrue()
             );
         }

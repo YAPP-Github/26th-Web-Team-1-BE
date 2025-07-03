@@ -84,14 +84,13 @@ public class AuthDocumentTest extends BaseDocumentTest {
                         fieldWithPath("information.isSignUp").type(BOOLEAN).description("회원 가입 여부"),
                         fieldWithPath("information.nickname").type(STRING).description("유저 닉네임"),
                         fieldWithPath("information.phoneNumber").type(STRING).description("핸드폰 전화번호").optional(),
-                        fieldWithPath("information.interestArea").type(STRING).description("유저 관심 지역").optional(),
                         fieldWithPath("information.optInMarketing").type(BOOLEAN).description("마케팅 동의 여부").optional()
                 );
 
         @Test
         void 로그인_성공() {
             LoginRequest request = new LoginRequest("code", "http://localhost:3000");
-            MemberResponse response = new MemberResponse(1L, true, "닉네임", null, null, null);
+            MemberResponse response = new MemberResponse(1L, true, "닉네임", null, null);
             doReturn(response).when(authService).login(request);
 
             var document = document("auth/login", 201)
@@ -101,6 +100,7 @@ public class AuthDocumentTest extends BaseDocumentTest {
 
             given(document)
                     .contentType(ContentType.JSON)
+                    .header(HttpHeaders.ORIGIN, origin)
                     .body(request)
                     .when().post("/api/auth/login")
                     .then().statusCode(201);

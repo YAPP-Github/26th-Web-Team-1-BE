@@ -28,7 +28,6 @@ class AuthServiceTest extends BaseServiceTest {
                     () -> assertThat(response.isSignUp()).isTrue(),
                     () -> assertThat(response.nickname()).isNotNull(),
                     () -> assertThat(response.phoneNumber()).isNull(),
-                    () -> assertThat(response.interestArea()).isNull(),
                     () -> assertThat(response.optInMarketing()).isNull()
             );
         }

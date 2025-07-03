@@ -6,7 +6,6 @@ public record MemberResponse(long id,
                              boolean isSignUp,
                              String nickname,
                              String phoneNumber,
-                             String interestArea,
                              Boolean optInMarketing
 ) {
 
@@ -15,7 +14,6 @@ public record MemberResponse(long id,
                 isSignUp,
                 member.getNickname(),
                 member.getPhoneNumber(),
-                member.getInterestAreaName(),
                 member.getOptInMarketing());
     }
 

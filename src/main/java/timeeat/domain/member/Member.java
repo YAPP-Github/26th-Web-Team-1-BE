@@ -4,8 +4,6 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,7 +11,6 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import timeeat.enums.InterestArea;
 import timeeat.exception.BusinessErrorCode;
 import timeeat.exception.BusinessException;
 
@@ -36,10 +33,6 @@ public class Member {
     @Embedded
     private MobilePhoneNumber mobilePhoneNumber;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "interest_area")
-    private InterestArea interestArea;
-
     @Column(name = "opt_in_marketing")
     private Boolean optInMarketing;
 
@@ -53,20 +46,18 @@ public class Member {
             String socialId,
             String nickname,
             String mobilePhoneNumber,
-            String interestArea,
             Boolean optInMarketing
     ) {
         this(socialId, nickname);
         validateOptInMarketing(optInMarketing);
         this.mobilePhoneNumber = new MobilePhoneNumber(mobilePhoneNumber);
-        this.interestArea = InterestArea.from(interestArea);
         this.optInMarketing = optInMarketing;
     }
 
-    public Member(String nickname, String mobilePhoneNumber, String interestArea, boolean optInMarketing) {
+    public Member(String nickname, String mobilePhoneNumber, boolean optInMarketing) {
+        validateOptInMarketing(optInMarketing);
         this.nickname = nickname;
         this.mobilePhoneNumber = new MobilePhoneNumber(mobilePhoneNumber);
-        this.interestArea = InterestArea.from(interestArea);
         this.optInMarketing = optInMarketing;
     }
 
@@ -85,7 +76,6 @@ public class Member {
     public void update(Member member) {
         this.nickname = member.nickname;
         this.mobilePhoneNumber = member.mobilePhoneNumber;
-        this.interestArea = member.interestArea;
         this.optInMarketing = member.optInMarketing;
     }
 
@@ -110,14 +100,6 @@ public class Member {
             return null;
         }
         return mobilePhoneNumber.getValue();
-    }
-
-    @Nullable
-    public String getInterestAreaName() {
-        if (interestArea == null) {
-            return null;
-        }
-        return interestArea.getAreaName();
     }
 }
 

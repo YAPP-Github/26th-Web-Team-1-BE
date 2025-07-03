@@ -96,7 +96,7 @@ class MemberServiceTest extends BaseServiceTest {
         @Test
         void 회원_정보를_수정할_수_있다() {
             Member member = memberGenerator.generate("123");
-            MemberUpdateRequest request = new MemberUpdateRequest("update-nickname", "01012345678", "성북구", true);
+            MemberUpdateRequest request = new MemberUpdateRequest("update-nickname", "01012345678", true);
 
             MemberResponse response = memberService.update(member.getId(), request);
 
@@ -105,7 +105,6 @@ class MemberServiceTest extends BaseServiceTest {
                     () -> assertThat(response.isSignUp()).isFalse(),
                     () -> assertThat(response.nickname()).isEqualTo("update-nickname"),
                     () -> assertThat(response.phoneNumber()).isEqualTo("01012345678"),
-                    () -> assertThat(response.interestArea()).isEqualTo("성북구"),
                     () -> assertThat(response.optInMarketing()).isTrue()
             );
         }
@@ -115,7 +114,7 @@ class MemberServiceTest extends BaseServiceTest {
             Member existMember = memberGenerator.generate("123", "duplicate-nickname");
             Member updatedMember = memberGenerator.generate("456");
             MemberUpdateRequest request =
-                    new MemberUpdateRequest(existMember.getNickname(), "01012345678", "성북구", true);
+                    new MemberUpdateRequest(existMember.getNickname(), "01012345678", true);
 
             BusinessException exception = assertThrows(BusinessException.class,
                     () -> memberService.update(updatedMember.getId(), request));
@@ -127,7 +126,7 @@ class MemberServiceTest extends BaseServiceTest {
         void 기존의_닉네임과_동일하면_있으면_정상적으로_회원_정보가_수정된다() {
             Member member = memberGenerator.generate("123", "duplicate-nickname");
             MemberUpdateRequest request =
-                    new MemberUpdateRequest(member.getNickname(), "01012345678", "성북구", true);
+                    new MemberUpdateRequest(member.getNickname(), "01012345678", true);
 
             MemberResponse response = memberService.update(member.getId(), request);
 
@@ -140,7 +139,7 @@ class MemberServiceTest extends BaseServiceTest {
             memberGenerator.generateRegisteredMember("123", "nickname1", phoneNumber);
             Member updatedMember = memberGenerator.generate("456", "nickname2");
             MemberUpdateRequest request =
-                    new MemberUpdateRequest("new-nickname", phoneNumber, "성북구", true);
+                    new MemberUpdateRequest("new-nickname", phoneNumber, true);
 
             BusinessException exception = assertThrows(BusinessException.class,
                     () -> memberService.update(updatedMember.getId(), request));
@@ -153,7 +152,7 @@ class MemberServiceTest extends BaseServiceTest {
             String phoneNumber = "01012345678";
             Member member = memberGenerator.generateRegisteredMember("123", "nickname1", phoneNumber);
             MemberUpdateRequest request =
-                    new MemberUpdateRequest("new-nickname", phoneNumber, "성북구", true);
+                    new MemberUpdateRequest("new-nickname", phoneNumber, true);
 
             MemberResponse response = memberService.update(member.getId(), request);
 
