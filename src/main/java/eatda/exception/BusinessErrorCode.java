@@ -27,6 +27,7 @@ public enum BusinessErrorCode {
     INVALID_STORE_TIME_ORDER("STO009", "종료 시간은 시작 시간보다 늦어야 합니다."),
     OUT_OF_SEOUL_LATITUDE_RANGE("STO010", "서비스 지역(서울)을 벗어난 위도 값입니다."),
     OUT_OF_SEOUL_LONGITUDE_RANGE("STO011", "서비스 지역(서울)을 벗어난 경도 값입니다."),
+    STORE_SEARCH_FAILED("STO012", "해당 매장 검색에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // Map
     MAP_SERVER_ERROR("MAP001", "지도 서버와의 통신 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
