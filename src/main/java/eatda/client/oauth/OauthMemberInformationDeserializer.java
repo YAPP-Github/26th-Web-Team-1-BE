@@ -14,11 +14,15 @@ public class OauthMemberInformationDeserializer extends JsonDeserializer<OauthMe
         JsonNode root = jsonParser.getCodec().readTree(jsonParser);
 
         long id = root.path("id").asLong();
+        String email = root
+                .path("kakao_account")
+                .path("email")
+                .asText(null);
         String nickname = root
                 .path("kakao_account")
                 .path("profile")
                 .path("nickname")
                 .asText(null);
-        return new OauthMemberInformation(id, nickname);
+        return new OauthMemberInformation(id, email, nickname);
     }
 }

@@ -1,10 +1,10 @@
-INSERT INTO member (id, social_id, nickname, phone_number, opt_in_marketing)
-VALUES (1, 123456789, '이승로', '01012345678', true),
-       (3, 456789123, '장수빈', '01045678912', true),
-       (4, 789123456, '서준환', '01078912345', true),
-       (5, 321251287, '신민선', '01034574568', false),
-       (6, 324569987, '박희수', '01043609998', false),
-       (7, 323487985, '하아얀', '01065083298', false);
+INSERT INTO member (id, social_id, email, nickname, phone_number, opt_in_marketing)
+VALUES (1, 123456789, 'default1@email.com', '이승로', '01012345678', true),
+       (3, 456789123, 'default3@email.com', '장수빈', '01045678912', true),
+       (4, 789123456, 'default4@email.com', '서준환', '01078912345', true),
+       (5, 321251287, 'default5@email.com', '신민선', '01034574568', false),
+       (6, 324569987, 'default6@email.com', '박희수', '01043609998', false),
+       (7, 323487985, 'default7@email.com', '하아얀', '01065083298', false);
 
 INSERT INTO store (id, name, category, latitude, longitude,
                    address, phone_number, image_url, open_time, close_time,

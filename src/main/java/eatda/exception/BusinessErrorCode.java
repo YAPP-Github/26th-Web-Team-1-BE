@@ -14,6 +14,8 @@ public enum BusinessErrorCode {
     INVALID_SOCIAL_ID("MEM005", "소셜 ID는 필수입니다."),
     DUPLICATE_NICKNAME("MEM006", "이미 사용 중인 닉네임입니다."),
     DUPLICATE_PHONE_NUMBER("MEM007", "이미 사용 중인 전화번호입니다."),
+    INVALID_EMAIL("MEM008", "유효하지 않은 이메일 형식입니다."),
+
 
     // Store
     INVALID_STORE_CATEGORY("STO001", "유효하지 않은 매장 카테고리입니다."),
@@ -54,7 +56,8 @@ public enum BusinessErrorCode {
     INVALID_IMAGE_TYPE("CLIENT010", "지원하지 않는 이미지 형식입니다.", HttpStatus.BAD_REQUEST),
     FILE_UPLOAD_FAILED("SERVER002", "파일 업로드에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     FILE_URL_GENERATION_FAILED("SERVER003", "파일 URL 생성에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-    PRESIGNED_URL_GENERATION_FAILED("SERVER004", "Presigned URL 생성에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+    PRESIGNED_URL_GENERATION_FAILED("SERVER004", "Presigned URL 생성에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    ;
 
     private final String code;
     private final String message;

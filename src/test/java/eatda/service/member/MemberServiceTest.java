@@ -25,7 +25,7 @@ class MemberServiceTest extends BaseServiceTest {
 
         @Test
         void 회원_정보를_조회할_수_있다() {
-            Member member = memberGenerator.generateRegisteredMember("123", "nickname", "01012345678");
+            Member member = memberGenerator.generateRegisteredMember("123", "abc@kakao.com", "nickname", "01012345678");
 
             MemberResponse response = memberService.getMember(member.getId());
 
@@ -54,8 +54,8 @@ class MemberServiceTest extends BaseServiceTest {
 
         @Test
         void 중복되지_않은_닉네임이면_예외가_발생하지_않는다() {
-            memberGenerator.generate("123", "nickname");
-            Member member = memberGenerator.generate("456", "unique-nickname");
+            memberGenerator.generate("123", "abc@kakao.com", "nickname");
+            Member member = memberGenerator.generate("456", "def@kakao.com", "unique-nickname");
             String newNickname = "new-unique-nickname";
 
             assertThatCode(() -> memberService.validateNickname(newNickname, member.getId()))
@@ -64,7 +64,7 @@ class MemberServiceTest extends BaseServiceTest {
 
         @Test
         void 자신의_기존_닉네임이면_예외가_발생하지_않는다() {
-            Member member = memberGenerator.generate("123", "nickname");
+            Member member = memberGenerator.generateByNickname("123", "nickname");
             String newNickname = "nickname";
 
             assertThatCode(() -> memberService.validateNickname(newNickname, member.getId()))
@@ -73,8 +73,8 @@ class MemberServiceTest extends BaseServiceTest {
 
         @Test
         void 중복된_닉네임이_있으면_예외가_발생한다() {
-            memberGenerator.generate("123", "duplicate-nickname");
-            Member member = memberGenerator.generate("456", "another-nickname");
+            memberGenerator.generate("123", "abc@kakao.com", "duplicate-nickname");
+            Member member = memberGenerator.generate("456", "def@kakao.com", "another-nickname");
             String newNickname = "duplicate-nickname";
 
             BusinessException exception = assertThrows(BusinessException.class,
@@ -89,8 +89,8 @@ class MemberServiceTest extends BaseServiceTest {
 
         @Test
         void 중복되지_않은_전화번호이면_예외가_발생하지_않는다() {
-            memberGenerator.generate("123", "nickname");
-            Member member = memberGenerator.generate("456", "unique-nickname");
+            memberGenerator.generate("123", "abc@kakao.com", "nickname");
+            Member member = memberGenerator.generate("456", "def@kakao.com", "unique-nickname");
             String newPhoneNumber = "01012345678";
 
             assertThatCode(() -> memberService.validatePhoneNumber(newPhoneNumber, member.getId()))
@@ -99,7 +99,7 @@ class MemberServiceTest extends BaseServiceTest {
 
         @Test
         void 자신의_기존_전화번호이면_예외가_발생하지_않는다() {
-            Member member = memberGenerator.generateRegisteredMember("123", "nickname", "01012345678");
+            Member member = memberGenerator.generateRegisteredMember("nickname", "hij@kakao.com", "123", "01012345678");
             String newPhoneNumber = "01012345678";
 
             assertThatCode(() -> memberService.validatePhoneNumber(newPhoneNumber, member.getId()))
@@ -108,8 +108,9 @@ class MemberServiceTest extends BaseServiceTest {
 
         @Test
         void 중복된_전화번호가_있으면_예외가_발생한다() {
-            memberGenerator.generateRegisteredMember("123", "nickname1", "01012345678");
-            Member member = memberGenerator.generateRegisteredMember("456", "nickname2", "01087654321");
+            memberGenerator.generateRegisteredMember("nickname1", "abc@kakao.com", "123", "01012345678");
+            Member member = memberGenerator.generateRegisteredMember("nickname2", "def@kakao.com", "456",
+                    "01087654321");
             String newPhoneNumber = "01012345678";
 
             BusinessException exception = assertThrows(BusinessException.class,
@@ -140,8 +141,8 @@ class MemberServiceTest extends BaseServiceTest {
 
         @Test
         void 중복된_닉네임이_있으면_예외가_발생한다() {
-            Member existMember = memberGenerator.generate("123", "duplicate-nickname");
-            Member updatedMember = memberGenerator.generate("456");
+            Member existMember = memberGenerator.generate("123", "abc@kakao.com", "duplicate-nickname");
+            Member updatedMember = memberGenerator.generate("456", "def@kakao.com", "another-nickname");
             MemberUpdateRequest request =
                     new MemberUpdateRequest(existMember.getNickname(), "01012345678", true);
 
@@ -153,7 +154,7 @@ class MemberServiceTest extends BaseServiceTest {
 
         @Test
         void 기존의_닉네임과_동일하면_있으면_정상적으로_회원_정보가_수정된다() {
-            Member member = memberGenerator.generate("123", "duplicate-nickname");
+            Member member = memberGenerator.generateByNickname("123", "duplicate-nickname");
             MemberUpdateRequest request =
                     new MemberUpdateRequest(member.getNickname(), "01012345678", true);
 
@@ -165,8 +166,8 @@ class MemberServiceTest extends BaseServiceTest {
         @Test
         void 중복된_전화번호가_있으면_예외가_발생한다() {
             String phoneNumber = "01012345678";
-            memberGenerator.generateRegisteredMember("123", "nickname1", phoneNumber);
-            Member updatedMember = memberGenerator.generate("456", "nickname2");
+            memberGenerator.generateRegisteredMember("nickname1", "hij@kakao.com", "123", phoneNumber);
+            Member updatedMember = memberGenerator.generate("456", "abc@kakao.com", "nickname2");
             MemberUpdateRequest request =
                     new MemberUpdateRequest("new-nickname", phoneNumber, true);
 
@@ -179,7 +180,7 @@ class MemberServiceTest extends BaseServiceTest {
         @Test
         void 기존의_전화번호와_동일하면_정상적으로_회원_정보가_수정된다() {
             String phoneNumber = "01012345678";
-            Member member = memberGenerator.generateRegisteredMember("123", "nickname1", phoneNumber);
+            Member member = memberGenerator.generateRegisteredMember("nickname1", "hij@kakao.com", "123", phoneNumber);
             MemberUpdateRequest request =
                     new MemberUpdateRequest("new-nickname", phoneNumber, true);
 

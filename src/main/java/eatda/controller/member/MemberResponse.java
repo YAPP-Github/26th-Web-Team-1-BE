@@ -3,6 +3,7 @@ package eatda.controller.member;
 import eatda.domain.member.Member;
 
 public record MemberResponse(long id,
+                             String email,
                              boolean isSignUp,
                              String nickname,
                              String phoneNumber,
@@ -11,6 +12,7 @@ public record MemberResponse(long id,
 
     public MemberResponse(Member member, boolean isSignUp) {
         this(member.getId(),
+                member.getEmail(),
                 isSignUp,
                 member.getNickname(),
                 member.getPhoneNumber(),

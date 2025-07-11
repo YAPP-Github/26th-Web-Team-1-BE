@@ -117,15 +117,22 @@ class OauthClientTest {
         void Oauth_회원정보를_요청할_수_있다() {
             setMockServer(HttpMethod.GET, "https://kapi.kakao.com/v2/user/me", """
                     {
-                        "id":123456789,
-                        "connected_at": "2022-04-11T01:45:28Z",
+                        "id": 123456789,
+                        "connected_at": "2025-07-08T13:31:28Z",
+                        "properties": {
+                            "nickname": "이충안"
+                        },
                         "kakao_account": {
                             "profile_nickname_needs_agreement": false,
-                            "profile_image_needs_agreement": false,
                             "profile": {
-                                "nickname": "홍길동",
+                                "nickname": "이충안",
                                 "is_default_nickname": false
-                            }
+                            },
+                            "has_email": true,
+                            "email_needs_agreement": false,
+                            "is_email_valid": true,
+                            "is_email_verified": true,
+                            "email": "cnddkscndgus@naver.com"
                         }
                     }""");
             OauthToken token = new OauthToken("test-access-token");
@@ -134,7 +141,8 @@ class OauthClientTest {
 
             assertAll(
                     () -> assertThat(memberInfo.socialId()).isEqualTo(123456789L),
-                    () -> assertThat(memberInfo.nickname()).isEqualTo("홍길동")
+                    () -> assertThat(memberInfo.email()).isEqualTo("cnddkscndgus@naver.com"),
+                    () -> assertThat(memberInfo.nickname()).isEqualTo("이충안")
             );
         }
     }

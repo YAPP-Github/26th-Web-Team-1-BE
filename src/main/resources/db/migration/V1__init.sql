@@ -18,6 +18,7 @@ CREATE TABLE `store`
 CREATE TABLE `member`
 (
     `id`               BIGINT       NOT NULL AUTO_INCREMENT,
+    `email`            VARCHAR(255) NOT NULL,
     `social_id`        VARCHAR(255) NOT NULL,
     `nickname`         VARCHAR(255) NULL,
     `phone_number`     VARCHAR(255) NULL COMMENT '(`-` 없이))',

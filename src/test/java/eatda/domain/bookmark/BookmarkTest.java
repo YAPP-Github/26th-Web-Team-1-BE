@@ -21,7 +21,7 @@ class BookmarkTest {
 
         @Test
         void 정상적인_멤버와_가게로_북마크를_생성한다() {
-            Member member = new Member("socialId123", "nickname");
+            Member member = new Member("socialId123", "test@example.com", "nickname");
             Store store = new Store(
                     "가게명",
                     "양식",
@@ -65,7 +65,7 @@ class BookmarkTest {
 
         @Test
         void 가게가_null이면_예외를_던진다() {
-            Member member = new Member("socialId123", "nickname");
+            Member member = new Member("socialId123", "test@example.com", "nickname");
 
             BusinessException exception = assertThrows(BusinessException.class, () -> new Bookmark(member, null));
 

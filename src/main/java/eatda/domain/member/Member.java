@@ -20,12 +20,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
 
+    private static final String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "social_id", unique = true, nullable = false)
     private String socialId;
+
+    @Column(name = "email", unique = true, nullable = false)
+    private String email;
 
     @Column(name = "nickname")
     private String nickname;
@@ -36,19 +41,22 @@ public class Member {
     @Column(name = "opt_in_marketing")
     private Boolean optInMarketing;
 
-    public Member(String socialId, String nickname) {
+    public Member(String socialId, String email, String nickname) {
         validateSocialId(socialId);
+        validateEmail(email);
         this.socialId = socialId;
+        this.email = email;
         this.nickname = nickname;
     }
 
     public Member(
             String socialId,
+            String email,
             String nickname,
             String mobilePhoneNumber,
             Boolean optInMarketing
     ) {
-        this(socialId, nickname);
+        this(socialId, email, nickname);
         validateOptInMarketing(optInMarketing);
         this.mobilePhoneNumber = new MobilePhoneNumber(mobilePhoneNumber);
         this.optInMarketing = optInMarketing;
@@ -64,6 +72,12 @@ public class Member {
     private void validateSocialId(String socialId) {
         if (socialId == null || socialId.trim().isEmpty()) {
             throw new BusinessException(BusinessErrorCode.INVALID_SOCIAL_ID);
+        }
+    }
+
+    private void validateEmail(String email) {
+        if (email == null || !email.matches(EMAIL_REGEX)) {
+            throw new BusinessException(BusinessErrorCode.INVALID_EMAIL);
         }
     }
 

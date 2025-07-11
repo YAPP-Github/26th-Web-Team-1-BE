@@ -21,7 +21,7 @@ class AuthServiceTest extends BaseServiceTest {
 
     private static final OauthToken DEFAULT_OAUTH_TOKEN = new OauthToken("oauth-access-token");
     private static final OauthMemberInformation DEFAULT_OAUTH_MEMBER_INFO =
-            new OauthMemberInformation(123L, "nickname");
+            new OauthMemberInformation(123L, "authService@kakao.com", "nickname");
 
     @Autowired
     private AuthService authService;
