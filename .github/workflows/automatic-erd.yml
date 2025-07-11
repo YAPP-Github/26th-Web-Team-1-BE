@@ -1,0 +1,96 @@
+name: ERD to GitHub Pages
+
+on:
+  pull_request:
+    branches: [ "**" ]
+    paths: [ "**" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  generate-erd-from-flyway:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_USER: ${{ secrets.TEST_DB_USER }}
+          MYSQL_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.TEST_DB_ROOT_PASSWORD }}
+          MYSQL_DATABASE: testdb
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Download Flyway
+        run: |
+          curl -sSL "https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.13.0/flyway-commandline-10.13.0-linux-x64.tar.gz" -o flyway.tar.gz
+          tar -xzf flyway.tar.gz
+          echo "$(pwd)/flyway-10.13.0" >> $GITHUB_PATH
+
+      - name: Run Flyway migrations
+        run: |
+          flyway -url="jdbc:mysql://127.0.0.1:3306/testdb?allowPublicKeyRetrieval=true&useSSL=false" -user=${{ secrets.TEST_DB_USER }} -password=${{ secrets.TEST_DB_PASSWORD }} -locations=filesystem:src/main/resources/db/migration migrate
+        shell: bash
+
+      - name: Dump database schema
+        run: |
+          mkdir -p erd
+          mysqldump -h 127.0.0.1 -u ${{ secrets.TEST_DB_USER }} -p${{ secrets.TEST_DB_PASSWORD }} --no-data --skip-comments testdb > erd/schema.sql
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install DBML Tools
+        run: npm install -g @dbml/cli @softwaretechnik/dbml-renderer
+
+      - name: Convert SQL to DBML
+        run: |
+          npx sql2dbml erd/schema.sql --mysql -o erd/schema.dbml
+
+      - name: Render ERD to SVG
+        run: |
+          npx dbml-renderer -i erd/schema.dbml -o erd/erd.svg
+
+      - name: Generate HTML wrapper
+        run: |
+          echo "<html><head><title>ERD Preview</title></head><body><h2>ERD Preview for PR #${{ github.event.pull_request.number }}</h2><img src='erd.svg' style='max-width:100%;'/></body></html>" > erd/index.html
+
+      - name: Deploy ERD to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./erd
+          force_orphan: true
+
+      - name: Comment on PR with ERD Link
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            📌 최신 ERD가 자동 생성되었습니다.
+
+            👉 [ERD 보러가기](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/)
