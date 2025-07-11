@@ -1,0 +1,61 @@
+Table "bookmark" {
+  "id" bigint [pk, not null, increment]
+  "member_id" bigint [not null]
+  "store_id" bigint [not null]
+
+  Indexes {
+    (member_id, store_id) [unique, name: "UK_member_store"]
+  }
+}
+
+Table "flyway_schema_history" {
+  "installed_rank" int [pk, not null]
+  "version" varchar(50) [default: NULL]
+  "description" varchar(200) [not null]
+  "type" varchar(20) [not null]
+  "script" varchar(1000) [not null]
+  "checksum" int [default: NULL]
+  "installed_by" varchar(100) [not null]
+  "installed_on" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "execution_time" int [not null]
+  "success" tinyint(1) [not null]
+
+  Indexes {
+    success [name: "flyway_schema_history_s_idx"]
+  }
+}
+
+Table "member" {
+  "id" bigint [pk, not null, increment]
+  "social_id" varchar(255) [not null]
+  "nickname" varchar(255) [default: NULL]
+  "phone_number" varchar(255) [default: NULL, note: '(`-` 없이))']
+  "opt_in_marketing" tinyint(1) [default: '1']
+}
+
+Table "menu" {
+  "id" bigint [pk, not null, increment]
+  "store_id" bigint [not null]
+  "name" varchar(255) [not null]
+  "description" varchar(255) [default: NULL]
+  "price" int [not null]
+  "discount_price" int [default: NULL]
+  "start_time" datetime [default: NULL]
+  "end_time" datetime [default: NULL]
+  "image_url" varchar(511) [default: NULL]
+}
+
+Table "store" {
+  "id" bigint [pk, not null, increment]
+  "name" varchar(255) [not null]
+  "category" varchar(255) [not null]
+  "introduction" text [not null]
+  "phone_number" varchar(255) [not null, note: '(`-` 없이)']
+  "interest_area" varchar(50) [not null, note: '(서울시 25개 구, Java Enum 이름으로 저장: ex, GANGNAM)']
+  "address" varchar(255) [not null, note: '(전체주소)']
+  "latitude" double [not null]
+  "longitude" double [not null]
+  "open_time" time [not null]
+  "close_time" time [not null]
+  "image_url" varchar(511) [default: NULL]
+}
