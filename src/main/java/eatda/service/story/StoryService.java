@@ -9,10 +9,10 @@ import eatda.domain.member.Member;
 import eatda.domain.story.Story;
 import eatda.exception.BusinessErrorCode;
 import eatda.exception.BusinessException;
+import eatda.repository.image.ImageDomain;
+import eatda.repository.image.ImageRepository;
 import eatda.repository.member.MemberRepository;
 import eatda.repository.story.StoryRepository;
-import eatda.service.common.ImageDomain;
-import eatda.service.common.ImageService;
 import eatda.service.store.StoreService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +26,11 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class StoryService {
+
     private static final int PAGE_START_NUMBER = 0;
 
     private final StoreService storeService;
-    private final ImageService imageService;
+    private final ImageRepository imageRepository;
     private final StoryRepository storyRepository;
     private final MemberRepository memberRepository;
 
@@ -38,7 +39,7 @@ public class StoryService {
         Member member = memberRepository.getById(memberId);
         List<StoreSearchResult> searchResponses = storeService.searchStoreResults(request.query());
         FilteredSearchResult matchedStore = filteredSearchResponse(searchResponses, request.storeKakaoId());
-        String imageKey = imageService.upload(image, ImageDomain.STORY);
+        String imageKey = imageRepository.upload(image, ImageDomain.STORY);
 
         Story story = Story.builder()
                 .member(member)
@@ -77,7 +78,7 @@ public class StoryService {
                 orderByPage.getContent().stream()
                         .map(story -> new StoriesResponse.StoryPreview(
                                 story.getId(),
-                                imageService.getPresignedUrl(story.getImageKey())
+                                imageRepository.getPresignedUrl(story.getImageKey())
                         ))
                         .toList()
         );
@@ -95,7 +96,7 @@ public class StoryService {
                 story.getAddressDistrict(),
                 story.getAddressNeighborhood(),
                 story.getDescription(),
-                imageService.getPresignedUrl(story.getImageKey())
+                imageRepository.getPresignedUrl(story.getImageKey())
         );
     }
 }

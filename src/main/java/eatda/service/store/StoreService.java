@@ -9,9 +9,9 @@ import eatda.controller.store.StorePreviewResponse;
 import eatda.controller.store.StoreSearchResponses;
 import eatda.controller.store.StoresResponse;
 import eatda.domain.store.Store;
+import eatda.repository.image.ImageRepository;
 import eatda.repository.store.CheerRepository;
 import eatda.repository.store.StoreRepository;
-import eatda.service.common.ImageService;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class StoreService {
     private final StoreSearchFilter storeSearchFilter;
     private final StoreRepository storeRepository;
     private final CheerRepository cheerRepository;
-    private final ImageService imageService;
+    private final ImageRepository imageRepository;
 
     // TODO : N+1 문제 해결
     public StoresResponse getStores(int size) {
@@ -38,7 +38,7 @@ public class StoreService {
 
     private Optional<String> getStoreImageUrl(Store store) {
         return cheerRepository.findRecentImageKey(store)
-                .map(imageService::getPresignedUrl);
+                .map(imageRepository::getPresignedUrl);
     }
 
     public StoreSearchResponses searchStores(String query) {

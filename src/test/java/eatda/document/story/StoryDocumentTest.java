@@ -17,7 +17,6 @@ import eatda.document.Tag;
 import eatda.exception.BusinessErrorCode;
 import eatda.exception.BusinessException;
 import eatda.exception.EtcErrorCode;
-import eatda.service.common.ImageDomain;
 import io.restassured.response.Response;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -43,10 +42,6 @@ public class StoryDocumentTest extends BaseDocumentTest {
 
         @Test
         void 스토리_등록_성공() {
-            doReturn("https://dummy-s3.com/story.png")
-                    .when(imageService)
-                    .upload(any(), org.mockito.ArgumentMatchers.eq(ImageDomain.STORY));
-
             doNothing().when(storyService)
                     .registerStory(any(), any(), any());
 
@@ -68,7 +63,8 @@ public class StoryDocumentTest extends BaseDocumentTest {
             Response response = given(document)
                     .contentType("multipart/form-data")
                     .header(HttpHeaders.AUTHORIZATION, accessToken())
-                    .multiPart("request", "request.json", requestJson.getBytes(StandardCharsets.UTF_8), "application/json")
+                    .multiPart("request", "request.json", requestJson.getBytes(StandardCharsets.UTF_8),
+                            "application/json")
                     .multiPart("image", "image.png", imageBytes, "image/png")
                     .when().post("/api/stories");
 
@@ -98,7 +94,8 @@ public class StoryDocumentTest extends BaseDocumentTest {
             given(document)
                     .contentType("multipart/form-data")
                     .header(HttpHeaders.AUTHORIZATION, accessToken())
-                    .multiPart("request", "request.json", invalidJson.getBytes(StandardCharsets.UTF_8), "application/json")
+                    .multiPart("request", "request.json", invalidJson.getBytes(StandardCharsets.UTF_8),
+                            "application/json")
                     .multiPart("image", "image.png", imageBytes, "image/png")
                     .when().post("/api/stories")
                     .then().statusCode(EtcErrorCode.CLIENT_REQUEST_ERROR.getStatus().value());
@@ -128,7 +125,8 @@ public class StoryDocumentTest extends BaseDocumentTest {
             Response response = given(document)
                     .contentType("multipart/form-data")
                     .header(HttpHeaders.AUTHORIZATION, accessToken())
-                    .multiPart("request", "request.json", requestJson.getBytes(StandardCharsets.UTF_8), "application/json")
+                    .multiPart("request", "request.json", requestJson.getBytes(StandardCharsets.UTF_8),
+                            "application/json")
                     .multiPart("image", "image.txt", invalidImage, "text/plain")
                     .when().post("/api/stories");
 

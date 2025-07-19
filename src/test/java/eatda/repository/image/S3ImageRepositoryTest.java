@@ -1,4 +1,4 @@
-package eatda.service.common;
+package eatda.repository.image;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -15,12 +15,9 @@ import java.time.Duration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -30,21 +27,19 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
-@ExtendWith(MockitoExtension.class)
-class ImageServiceTest {
+class S3ImageRepositoryTest {
 
     private static final String TEST_BUCKET = "test-bucket";
 
-    @Mock
     private S3Client s3Client;
-
-    @Mock
     private S3Presigner s3Presigner;
-    private ImageService imageService;
+    private S3ImageRepository s3ImageRepository;
 
     @BeforeEach
     void setUp() {
-        imageService = new ImageService(s3Client, TEST_BUCKET, s3Presigner);
+        s3Client = mock(S3Client.class);
+        s3Presigner = mock(S3Presigner.class);
+        s3ImageRepository = new S3ImageRepository(s3Client, TEST_BUCKET, s3Presigner);
     }
 
     @Nested
@@ -60,7 +55,7 @@ class ImageServiceTest {
                     "image", originalFilename, contentType, "image-content".getBytes()
             );
 
-            String key = imageService.upload(file, imageDomain);
+            String key = s3ImageRepository.upload(file, imageDomain);
 
             ArgumentCaptor<PutObjectRequest> putObjectRequestCaptor = ArgumentCaptor.forClass(PutObjectRequest.class);
             verify(s3Client).putObject(putObjectRequestCaptor.capture(), any(RequestBody.class));
@@ -83,7 +78,7 @@ class ImageServiceTest {
             );
 
             BusinessException exception = assertThrows(BusinessException.class,
-                    () -> imageService.upload(file, ImageDomain.STORY));
+                    () -> s3ImageRepository.upload(file, ImageDomain.STORY));
 
             assertThat(exception.getErrorCode()).isEqualTo(BusinessErrorCode.INVALID_IMAGE_TYPE);
         }
@@ -104,7 +99,7 @@ class ImageServiceTest {
             when(s3Presigner.presignGetObject(any(GetObjectPresignRequest.class)))
                     .thenReturn(presignedRequestResult);
 
-            String presignedUrl = imageService.getPresignedUrl(key);
+            String presignedUrl = s3ImageRepository.getPresignedUrl(key);
 
             ArgumentCaptor<GetObjectPresignRequest> presignRequestCaptor =
                     ArgumentCaptor.forClass(GetObjectPresignRequest.class);
@@ -127,7 +122,7 @@ class ImageServiceTest {
                     .thenThrow(SdkClientException.create("AWS SDK 통신 실패"));
 
             BusinessException exception = assertThrows(BusinessException.class,
-                    () -> imageService.getPresignedUrl(key));
+                    () -> s3ImageRepository.getPresignedUrl(key));
 
             assertThat(exception.getErrorCode()).isEqualTo(BusinessErrorCode.PRESIGNED_URL_GENERATION_FAILED);
         }

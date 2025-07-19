@@ -1,4 +1,4 @@
-package eatda.service.common;
+package eatda.repository.image;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

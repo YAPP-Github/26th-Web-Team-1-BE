@@ -1,14 +1,14 @@
-package eatda.service.common;
+package eatda.repository.image;
 
 import eatda.exception.BusinessErrorCode;
 import eatda.exception.BusinessException;
+import eatda.repository.CacheSetting;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -17,20 +17,21 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
-@Service
-public class ImageService {
+@Component
+public class S3ImageRepository {
 
     private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of("image/jpg", "image/jpeg", "image/png");
     private static final String DEFAULT_CONTENT_TYPE = "bin";
     private static final String PATH_DELIMITER = "/";
     private static final String EXTENSION_DELIMITER = ".";
-    private static final Duration PRESIGNED_URL_DURATION = Duration.ofMinutes(30);
+    private static final Duration PRESIGNED_URL_DURATION = CacheSetting.IMAGE.getTimeToLive()
+            .plus(Duration.ofMinutes(5));
 
     private final S3Client s3Client;
     private final String bucket;
     private final S3Presigner s3Presigner;
 
-    public ImageService(
+    public S3ImageRepository(
             S3Client s3Client,
             @Value("${spring.cloud.aws.s3.bucket}") String bucket,
             S3Presigner s3Presigner) {
@@ -75,12 +76,8 @@ public class ImageService {
         return filename.substring(filename.lastIndexOf(EXTENSION_DELIMITER) + 1);
     }
 
-    @Nullable
-    public String getPresignedUrl(@Nullable String key) {
-        if (key == null) {
-            return null;
-        }
 
+    public String getPresignedUrl(String key) {
         try {
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                     .bucket(bucket)

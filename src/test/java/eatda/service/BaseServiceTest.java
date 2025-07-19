@@ -10,10 +10,11 @@ import eatda.client.oauth.OauthClient;
 import eatda.fixture.CheerGenerator;
 import eatda.fixture.MemberGenerator;
 import eatda.fixture.StoreGenerator;
+import eatda.repository.image.S3ImageRepository;
 import eatda.repository.member.MemberRepository;
 import eatda.repository.store.CheerRepository;
 import eatda.repository.store.StoreRepository;
-import eatda.service.common.ImageService;
+import eatda.repository.story.StoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,7 @@ public abstract class BaseServiceTest {
     protected MapClient mapClient;
 
     @MockitoBean
-    protected ImageService imageService;
+    protected S3ImageRepository imageRepository;
 
     @Autowired
     protected MemberGenerator memberGenerator;
@@ -54,9 +55,12 @@ public abstract class BaseServiceTest {
     @Autowired
     protected CheerRepository cheerRepository;
 
+    @Autowired
+    protected StoryRepository storyRepository;
+
     @BeforeEach
     void mockingImageService() {
-        doReturn(MOCKED_IMAGE_URL).when(imageService).getPresignedUrl(anyString());
-        doReturn(MOCKED_IMAGE_KEY).when(imageService).upload(any(), any());
+        doReturn(MOCKED_IMAGE_URL).when(imageRepository).getPresignedUrl(anyString());
+        doReturn(MOCKED_IMAGE_KEY).when(imageRepository).upload(any(), any());
     }
 }
