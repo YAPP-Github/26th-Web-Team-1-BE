@@ -5,6 +5,8 @@ import eatda.domain.member.Member;
 import eatda.domain.store.Cheer;
 import eatda.domain.store.Store;
 import eatda.repository.store.CheerRepository;
+import eatda.util.DomainUtils;
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,8 +21,9 @@ public class CheerGenerator {
         this.cheerRepository = cheerRepository;
     }
 
-    public Cheer generateAdmin(Member member, Store store) {
+    public Cheer generateAdmin(Member member, Store store, LocalDateTime createdAt) {
         Cheer cheer = new Cheer(member, store, DEFAULT_DESCRIPTION, new ImageKey(DEFAULT_IMAGE_KEY), true);
+        DomainUtils.setCreatedAt(cheer, createdAt);
         return cheerRepository.save(cheer);
     }
 

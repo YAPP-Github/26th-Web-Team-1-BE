@@ -3,6 +3,8 @@ package eatda.fixture;
 import eatda.domain.store.Store;
 import eatda.domain.store.StoreCategory;
 import eatda.repository.store.StoreRepository;
+import eatda.util.DomainUtils;
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,6 +37,12 @@ public class StoreGenerator {
                 .latitude(DEFAULT_LATITUDE)
                 .longitude(DEFAULT_LONGITUDE)
                 .build();
+        return storeRepository.save(store);
+    }
+
+    public Store generate(String kakaoId, String lotNumberAddress, LocalDateTime createdAt) {
+        Store store = generate(kakaoId, lotNumberAddress);
+        DomainUtils.setCreatedAt(store, createdAt);
         return storeRepository.save(store);
     }
 }

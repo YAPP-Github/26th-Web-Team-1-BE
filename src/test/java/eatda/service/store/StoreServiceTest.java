@@ -9,6 +9,7 @@ import eatda.client.map.StoreSearchResult;
 import eatda.domain.member.Member;
 import eatda.domain.store.Store;
 import eatda.service.BaseServiceTest;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,11 +26,12 @@ class StoreServiceTest extends BaseServiceTest {
         @Test
         void 음식점_목록을_최신순으로_조회한다() {
             Member member = memberGenerator.generate("111");
-            Store store1 = storeGenerator.generate("농민백암순대", "서울 강남구 대치동 896-33");
+            LocalDateTime startAt = LocalDateTime.of(2025, 7, 26, 1, 0, 0);
+            Store store1 = storeGenerator.generate("농민백암순대", "서울 강남구 대치동 896-33", startAt);
+            Store store2 = storeGenerator.generate("석관동떡볶이", "서울 성북구 석관동 123-45", startAt.plusHours(1));
+            Store store3 = storeGenerator.generate("강남순대국", "서울 강남구 역삼동 678-90", startAt.plusHours(2));
             cheerGenerator.generateCommon(member, store1, "image-key-1");
-            Store store2 = storeGenerator.generate("석관동떡볶이", "서울 성북구 석관동 123-45");
             cheerGenerator.generateCommon(member, store2, "image-key-2");
-            Store store3 = storeGenerator.generate("강남순대국", "서울 강남구 역삼동 678-90");
             cheerGenerator.generateCommon(member, store3, "image-key-3");
 
             int size = 2;

@@ -15,6 +15,8 @@ public abstract class AuditingEntity {
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+        if (createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
     }
 }

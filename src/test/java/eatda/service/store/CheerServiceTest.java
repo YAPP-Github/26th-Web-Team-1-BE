@@ -16,6 +16,7 @@ import eatda.domain.store.Store;
 import eatda.exception.BusinessErrorCode;
 import eatda.exception.BusinessException;
 import eatda.service.BaseServiceTest;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -134,9 +135,10 @@ class CheerServiceTest extends BaseServiceTest {
             Member member = memberGenerator.generate("123");
             Store store1 = storeGenerator.generate("123", "서울시 강남구 역삼동 123-45");
             Store store2 = storeGenerator.generate("456", "서울시 성북구 석관동 123-45");
-            Cheer cheer1 = cheerGenerator.generateAdmin(member, store1);
-            Cheer cheer2 = cheerGenerator.generateAdmin(member, store1);
-            Cheer cheer3 = cheerGenerator.generateAdmin(member, store2);
+            LocalDateTime startAt = LocalDateTime.of(2025, 7, 26, 1, 0, 0);
+            Cheer cheer1 = cheerGenerator.generateAdmin(member, store1, startAt);
+            Cheer cheer2 = cheerGenerator.generateAdmin(member, store1, startAt.plusHours(1));
+            Cheer cheer3 = cheerGenerator.generateAdmin(member, store2, startAt.plusHours(2));
 
             CheersResponse response = cheerService.getCheers(2);
 

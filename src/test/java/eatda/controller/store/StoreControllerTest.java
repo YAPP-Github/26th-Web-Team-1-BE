@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import eatda.controller.BaseControllerTest;
 import eatda.domain.member.Member;
 import eatda.domain.store.Store;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -18,9 +19,10 @@ class StoreControllerTest extends BaseControllerTest {
         @Test
         void 음식점_목록을_최신순으로_조회한다() {
             Member member = memberGenerator.generate("111");
-            Store store1 = storeGenerator.generate("111", "서울 강남구 대치동 896-33");
-            Store store2 = storeGenerator.generate("222", "서울 강남구 대치동 896-34");
-            Store store3 = storeGenerator.generate("333", "서울 강남구 대치동 896-35");
+            LocalDateTime startAt = LocalDateTime.of(2025, 7, 26, 1, 0, 0);
+            Store store1 = storeGenerator.generate("111", "서울 강남구 대치동 896-33", startAt);
+            Store store2 = storeGenerator.generate("222", "서울 강남구 대치동 896-34", startAt.plusHours(1));
+            Store store3 = storeGenerator.generate("333", "서울 강남구 대치동 896-35", startAt.plusHours(2));
             cheerGenerator.generateCommon(member, store1, "image-key-1");
             cheerGenerator.generateCommon(member, store2, "image-key-2");
             cheerGenerator.generateCommon(member, store3, "image-key-3");
