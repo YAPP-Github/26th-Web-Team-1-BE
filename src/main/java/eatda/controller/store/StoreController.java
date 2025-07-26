@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,6 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class StoreController {
 
     private final StoreService storeService;
+
+    @GetMapping("/api/shops/{storeId}/images")
+    public ResponseEntity<ImagesResponse> getStoreImages(@PathVariable long storeId) {
+        return ResponseEntity.ok(storeService.getStoreImages(storeId));
+    }
 
     @GetMapping("/api/shops")
     public ResponseEntity<StoresResponse> getStores(@RequestParam @Min(1) @Max(50) int size) {

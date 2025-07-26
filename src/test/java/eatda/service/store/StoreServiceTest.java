@@ -2,12 +2,16 @@ package eatda.service.store;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 
 import eatda.client.map.StoreSearchResult;
+import eatda.controller.store.ImagesResponse;
 import eatda.domain.member.Member;
 import eatda.domain.store.Store;
+import eatda.exception.BusinessErrorCode;
+import eatda.exception.BusinessException;
 import eatda.service.BaseServiceTest;
 import java.util.List;
 import org.junit.jupiter.api.Nested;
@@ -18,6 +22,42 @@ class StoreServiceTest extends BaseServiceTest {
 
     @Autowired
     private StoreService storeService;
+
+    @Nested
+    class GetStoreImages {
+
+        @Test
+        void 음식점_이미지들을_조회한다() {
+            Member member = memberGenerator.generate("111");
+            Store store = storeGenerator.generate("농민백암순대", "서울 강남구 대치동 896-33");
+            cheerGenerator.generateCommon(member, store, "image-key-1");
+            cheerGenerator.generateCommon(member, store, "image-key-2");
+            cheerGenerator.generateCommon(member, store, "image-key-3");
+
+            ImagesResponse response = storeService.getStoreImages(store.getId());
+
+            assertThat(response.imageUrls()).hasSize(3);
+        }
+
+        @Test
+        void 음식점_이미지가_없다면_빈_리스트를_반환한다() {
+            Store store = storeGenerator.generate("농민백암순대", "서울 강남구 대치동 896-33");
+
+            ImagesResponse response = storeService.getStoreImages(store.getId());
+
+            assertThat(response.imageUrls()).isEmpty();
+        }
+
+        @Test
+        void 음식점이_존재하지_않으면_예외를_발생시킨다() {
+            long nonExistentStoreId = 999L;
+
+            BusinessException exception = assertThrows(BusinessException.class,
+                    () -> storeService.getStoreImages(nonExistentStoreId));
+
+            assertThat(exception.getErrorCode()).isEqualTo(BusinessErrorCode.STORE_NOT_FOUND);
+        }
+    }
 
     @Nested
     class GetStores {

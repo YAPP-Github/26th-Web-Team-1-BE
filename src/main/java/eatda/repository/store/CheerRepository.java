@@ -7,12 +7,10 @@ import eatda.domain.store.Store;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.Repository;
 
-public interface CheerRepository extends Repository<Cheer, Long> {
-
-    Cheer save(Cheer cheer);
+public interface CheerRepository extends JpaRepository<Cheer, Long> {
 
     List<Cheer> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
@@ -22,6 +20,12 @@ public interface CheerRepository extends Repository<Cheer, Long> {
                 ORDER BY c.createdAt DESC
                 LIMIT 1""")
     Optional<ImageKey> findRecentImageKey(Store store);
+
+    @Query("""
+            SELECT c.imageKey FROM Cheer c
+                WHERE c.store = :store AND c.imageKey IS NOT NULL
+                ORDER BY c.createdAt DESC""")
+    List<ImageKey> findAllImageKey(Store store);
 
     int countByMember(Member member);
 

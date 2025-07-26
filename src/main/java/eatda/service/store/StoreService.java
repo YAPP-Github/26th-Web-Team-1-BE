@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 
 import eatda.client.map.MapClient;
 import eatda.client.map.StoreSearchResult;
+import eatda.controller.store.ImagesResponse;
 import eatda.controller.store.StorePreviewResponse;
 import eatda.controller.store.StoreSearchResponses;
 import eatda.controller.store.StoresResponse;
@@ -27,6 +28,15 @@ public class StoreService {
     private final StoreRepository storeRepository;
     private final CheerRepository cheerRepository;
     private final ImageStorage imageStorage;
+
+    public ImagesResponse getStoreImages(long storeId) {
+        Store store = storeRepository.getById(storeId);
+        List<String> imageUrls = cheerRepository.findAllImageKey(store)
+                .stream()
+                .map(imageStorage::getPreSignedUrl)
+                .toList();
+        return new ImagesResponse(imageUrls);
+    }
 
     // TODO : N+1 문제 해결
     public StoresResponse getStores(int size) {

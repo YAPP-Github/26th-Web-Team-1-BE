@@ -13,6 +13,42 @@ import org.springframework.http.HttpHeaders;
 class StoreControllerTest extends BaseControllerTest {
 
     @Nested
+    class GetStoreImages {
+
+        @Test
+        void 음식점_이미지들을_조회한다() {
+            Member member = memberGenerator.generate("111");
+            Store store = storeGenerator.generate("농민백암순대", "서울 강남구 대치동 896-33");
+            cheerGenerator.generateCommon(member, store, "image-key-1");
+            cheerGenerator.generateCommon(member, store, "image-key-2");
+            cheerGenerator.generateCommon(member, store, "image-key-3");
+
+            ImagesResponse response = given()
+                    .when()
+                    .get("/api/shops/{storeId}/images", store.getId())
+                    .then()
+                    .statusCode(200)
+                    .extract().as(ImagesResponse.class);
+
+            assertThat(response.imageUrls()).hasSize(3);
+        }
+
+        @Test
+        void 음식점_이미지가_없다면_빈_리스트를_반환한다() {
+            Store store = storeGenerator.generate("농민백암순대", "서울 강남구 대치동 896-33");
+
+            ImagesResponse response = given()
+                    .when()
+                    .get("/api/shops/{storeId}/images", store.getId())
+                    .then()
+                    .statusCode(200)
+                    .extract().as(ImagesResponse.class);
+
+            assertThat(response.imageUrls()).isEmpty();
+        }
+    }
+
+    @Nested
     class GetStores {
 
         @Test

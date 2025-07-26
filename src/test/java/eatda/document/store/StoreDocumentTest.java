@@ -12,6 +12,7 @@ import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 
+import eatda.controller.store.ImagesResponse;
 import eatda.controller.store.StorePreviewResponse;
 import eatda.controller.store.StoreSearchResponse;
 import eatda.controller.store.StoreSearchResponses;
@@ -31,6 +32,62 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.http.HttpHeaders;
 
 public class StoreDocumentTest extends BaseDocumentTest {
+
+    @Nested
+    class GetStoreImages {
+
+        RestDocsRequest requestDocument = request()
+                .tag(Tag.STORE_API)
+                .summary("가게 이미지 조회")
+                .pathParameter(
+                        parameterWithName("storeId").description("음식점 ID")
+                );
+
+        RestDocsResponse responseDocument = response()
+                .responseBodyField(
+                        fieldWithPath("imageUrls").type(ARRAY).description("음식점 이미지 URL 목록")
+                );
+
+        @Test
+        void 음식점_이미지들을_조회() {
+            long storeId = 1L;
+            ImagesResponse response = new ImagesResponse(List.of(
+                    "https://example.image/1.jpg",
+                    "https://example.image/2.jpg",
+                    "https://example.image/3.jpg"
+            ));
+            doReturn(response).when(storeService).getStoreImages(storeId);
+
+            var document = document("store/get-images", 200)
+                    .request(requestDocument)
+                    .response(responseDocument)
+                    .build();
+
+            given(document)
+                    .contentType(ContentType.JSON)
+                    .pathParam("storeId", storeId)
+                    .when().get("/api/shops/{storeId}/images")
+                    .then().statusCode(200);
+        }
+
+        @EnumSource(value = BusinessErrorCode.class, names = {"STORE_NOT_FOUND"})
+        @ParameterizedTest
+        void 음식점_이미지_조회_실패(BusinessErrorCode errorCode) {
+            long storeId = 1L;
+            doThrow(new BusinessException(errorCode)).when(storeService).getStoreImages(storeId);
+
+            var document = document("get-images", errorCode)
+                    .request(requestDocument)
+                    .response(ERROR_RESPONSE)
+                    .build();
+
+            given(document)
+                    .contentType(ContentType.JSON)
+                    .pathParam("storeId", storeId)
+                    .when().get("/api/shops/{storeId}/images")
+                    .then().statusCode(errorCode.getStatus().value());
+        }
+    }
 
     @Nested
     class GetStores {
