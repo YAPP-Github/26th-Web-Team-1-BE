@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -32,6 +33,13 @@ public class CheerController {
     @GetMapping("/api/cheer")
     public ResponseEntity<CheersResponse> getCheers(@RequestParam @Min(1) @Max(50) int size) {
         CheersResponse response = cheerService.getCheers(size);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/api/shops/{storeId}/cheers")
+    public ResponseEntity<CheersInStoreResponse> getCheersByStoreId(@PathVariable Long storeId,
+                                                                    @RequestParam @Min(1) @Max(50) int size) {
+        CheersInStoreResponse response = cheerService.getCheersByStoreId(storeId, size);
         return ResponseEntity.ok(response);
     }
 }

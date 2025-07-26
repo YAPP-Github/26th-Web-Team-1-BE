@@ -14,9 +14,11 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.partWithName;
 
+import eatda.controller.store.CheerInStoreResponse;
 import eatda.controller.store.CheerPreviewResponse;
 import eatda.controller.store.CheerRegisterRequest;
 import eatda.controller.store.CheerResponse;
+import eatda.controller.store.CheersInStoreResponse;
 import eatda.controller.store.CheersResponse;
 import eatda.document.BaseDocumentTest;
 import eatda.document.RestDocsRequest;
@@ -188,6 +190,70 @@ public class CheerDocumentTest extends BaseDocumentTest {
                     .contentType(ContentType.JSON)
                     .queryParam("size", size)
                     .when().get("/api/cheer")
+                    .then().statusCode(errorCode.getStatus().value());
+        }
+    }
+
+    @Nested
+    class GetCheersByStoreId {
+
+        RestDocsRequest requestDocument = request()
+                .tag(Tag.STORE_API)
+                .summary("가게별 응원 검색")
+                .pathParameter(
+                        parameterWithName("storeId").description("가게 ID")
+                )
+                .queryParameter(
+                        parameterWithName("size").description("조회 개수 (최소 1, 최대 50)")
+                );
+
+        RestDocsResponse responseDocument = response()
+                .responseBodyField(
+                        fieldWithPath("cheers").type(ARRAY).description("응원 검색 결과"),
+                        fieldWithPath("cheers[].id").type(NUMBER).description("응원 ID"),
+                        fieldWithPath("cheers[].memberId").type(NUMBER).description("응원 작성자 회원 ID"),
+                        fieldWithPath("cheers[].memberNickname").type(STRING).description("응원 작성자 닉네임"),
+                        fieldWithPath("cheers[].description").type(STRING).description("응원 내용")
+                );
+
+        @Test
+        void 가게별_응원_검색_성공() {
+            Long storeId = 1L;
+            int size = 2;
+            CheersInStoreResponse responses = new CheersInStoreResponse(List.of(
+                    new CheerInStoreResponse(20L, 5L, "커찬", "너무 맛있어요!"),
+                    new CheerInStoreResponse(10L, 3L, "찬커", "너무 매워요! 하지만 맛있어요!")
+            ));
+            doReturn(responses).when(cheerService).getCheersByStoreId(storeId, size);
+
+            var document = document("cheer/get-store-id", 200)
+                    .request(requestDocument)
+                    .response(responseDocument)
+                    .build();
+
+            given(document)
+                    .contentType(ContentType.JSON)
+                    .queryParam("size", size)
+                    .when().get("/api/shops/{storeId}/cheers", storeId)
+                    .then().statusCode(200);
+        }
+
+        @EnumSource(value = BusinessErrorCode.class, names = {"STORE_NOT_FOUND"})
+        @ParameterizedTest
+        void 가게별_응원_검색_실패(BusinessErrorCode errorCode) {
+            Long storeId = 1L;
+            int size = 2;
+            doThrow(new BusinessException(errorCode)).when(cheerService).getCheersByStoreId(eq(storeId), anyInt());
+
+            var document = document("cheer/get-store-id", errorCode)
+                    .request(requestDocument)
+                    .response(ERROR_RESPONSE)
+                    .build();
+
+            given(document)
+                    .contentType(ContentType.JSON)
+                    .queryParam("size", size)
+                    .when().get("/api/shops/{storeId}/cheers", storeId)
                     .then().statusCode(errorCode.getStatus().value());
         }
     }

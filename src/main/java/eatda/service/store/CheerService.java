@@ -2,9 +2,11 @@ package eatda.service.store;
 
 import eatda.client.map.MapClient;
 import eatda.client.map.StoreSearchResult;
+import eatda.controller.store.CheerInStoreResponse;
 import eatda.controller.store.CheerPreviewResponse;
 import eatda.controller.store.CheerRegisterRequest;
 import eatda.controller.store.CheerResponse;
+import eatda.controller.store.CheersInStoreResponse;
 import eatda.controller.store.CheersResponse;
 import eatda.domain.Image;
 import eatda.domain.ImageDomain;
@@ -73,5 +75,16 @@ public class CheerService {
                 .map(cheer -> new CheerPreviewResponse(cheer, cheer.getStore(),
                         imageStorage.getPreSignedUrl(cheer.getImageKey())))
                 .toList());
+    }
+
+    @Transactional(readOnly = true)
+    public CheersInStoreResponse getCheersByStoreId(Long storeId, int size) {
+        Store store = storeRepository.getById(storeId);
+        List<Cheer> cheers = cheerRepository.findAllByStoreOrderByCreatedAtDesc(store, Pageable.ofSize(size));
+
+        List<CheerInStoreResponse> cheersResponse = cheers.stream()
+                .map(CheerInStoreResponse::new)
+                .toList(); // TODO N+1 문제 해결
+        return new CheersInStoreResponse(cheersResponse);
     }
 }
