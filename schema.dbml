@@ -1,0 +1,126 @@
+Table "cheer" {
+  "id" bigint [pk, not null, increment]
+  "member_id" bigint [not null]
+  "store_id" bigint [not null]
+  "description" text [not null]
+  "_deprecated_image_key" varchar(511) [default: NULL]
+  "is_admin" tinyint(1) [not null, default: '0']
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    member_id [name: "member_id"]
+    store_id [name: "store_id"]
+  }
+}
+
+Table "cheer_image" {
+  "id" bigint [pk, not null, increment]
+  "cheer_id" bigint [not null]
+  "image_key" varchar(511) [not null]
+  "order_index" bigint [not null]
+  "content_type" varchar(255) [default: NULL]
+  "file_size" bigint [default: NULL]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (cheer_id, order_index) [unique, name: "uk_cheer_id_order_index"]
+  }
+}
+
+Table "cheer_tag" {
+  "id" bigint [pk, not null, increment]
+  "cheer_id" bigint [not null]
+  "name" varchar(63) [not null]
+
+  Indexes {
+    (cheer_id, name) [unique, name: "uk_cheer_tag_cheer_id_name"]
+  }
+}
+
+Table "flyway_schema_history" {
+  "installed_rank" int [pk, not null]
+  "version" varchar(50) [default: NULL]
+  "description" varchar(200) [not null]
+  "type" varchar(20) [not null]
+  "script" varchar(1000) [not null]
+  "checksum" int [default: NULL]
+  "installed_by" varchar(100) [not null]
+  "installed_on" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  "execution_time" int [not null]
+  "success" tinyint(1) [not null]
+
+  Indexes {
+    success [name: "flyway_schema_history_s_idx"]
+  }
+}
+
+Table "member" {
+  "id" bigint [pk, not null, increment]
+  "email" varchar(255) [not null]
+  "social_id" varchar(255) [not null]
+  "nickname" varchar(255) [default: NULL]
+  "phone_number" varchar(255) [default: NULL]
+  "opt_in_marketing" tinyint(1) [default: NULL]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    email [unique, name: "email"]
+    social_id [unique, name: "social_id"]
+  }
+}
+
+Table "store" {
+  "id" bigint [pk, not null, increment]
+  "kakao_id" varchar(255) [not null]
+  "category" varchar(50) [not null]
+  "phone_number" varchar(255) [not null]
+  "name" varchar(255) [not null]
+  "place_url" varchar(255) [not null]
+  "road_address" varchar(255) [not null]
+  "lot_number_address" varchar(255) [not null]
+  "district" varchar(31) [not null]
+  "latitude" double [not null]
+  "longitude" double [not null]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    kakao_id [unique, name: "kakao_id"]
+  }
+}
+
+Table "story" {
+  "id" bigint [pk, not null, increment]
+  "member_id" bigint [not null]
+  "store_kakao_id" varchar(255) [not null]
+  "store_name" varchar(255) [not null]
+  "store_road_address" varchar(255) [not null]
+  "store_lot_number_address" varchar(255) [not null]
+  "store_category" varchar(50) [not null]
+  "description" text
+  "_deprecated_image_key" varchar(511) [not null]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table "story_image" {
+  "id" bigint [pk, not null, increment]
+  "story_id" bigint [not null]
+  "image_key" varchar(511) [not null]
+  "order_index" bigint [not null]
+  "content_type" varchar(255) [default: NULL]
+  "file_size" bigint [default: NULL]
+  "created_at" timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    (story_id, order_index) [unique, name: "uk_story_id_order_index"]
+  }
+}
+
+Ref "cheer_ibfk_1":"member"."id" < "cheer"."member_id" [delete: cascade]
+
+Ref "cheer_ibfk_2":"store"."id" < "cheer"."store_id" [delete: cascade]
+
+Ref "cheer_image_ibfk_1":"cheer"."id" < "cheer_image"."cheer_id" [delete: cascade]
+
+Ref "cheer_tag_ibfk_1":"cheer"."id" < "cheer_tag"."cheer_id" [delete: cascade]
+
+Ref "story_image_ibfk_1":"story"."id" < "story_image"."story_id" [delete: cascade]
